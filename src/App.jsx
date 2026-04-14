@@ -4,116 +4,62 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+
+function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion}) {//Las tareas, los filtros y una funcion a aplicar? Los componentes solo pueden recibir un parametro, so lo metemos en un objeto
+
+  //Primero filtramos todas las tareas
+  let tareasFiltradas = [];
+  for (let i = 0; i < tareas.length; i++) {
+    if ((tareas[i].categoria === filtroCategoria || filtroCategoria === 'todas') && (tareas[i].estado === filtroEstado || filtroEstado === 'todas')) {
+      tareasFiltradas.push(tareas[i]);
+    }
+  }
+
+  //Ahora, para cada una de las tareas filtradas, retornamos un componente React, lo cual lo hacemos con un mapeo a la lista de una funcion que devuelve dicho componente para cada tarea
+  
+  return(
+
+    <>
+    
+      {tareasFiltradas.map((tarea) => {
+        return <tr key={tarea.id}><td>{tarea.id}</td><td>{tarea.texto}</td><td>{tarea.categoria}</td><td>{tarea.estado}</td><td><button onClick={() => (console.log(tarea.texto))}>Editar</button></td></tr>
+      })}
+
+    </>
+
+
+  )
+
+}
+
+
 function App() {
   const [count, setCount] = useState(0)
 
+  const [tareas, setTareas] = useState([
+    { id: 1, texto: 'Tarea de prueba 1', categoria: 'personal', estado: 'pendiente' },
+    { id: 2, texto: 'Tarea de prueba 2', categoria: 'trabajo', estado: 'completada' }
+  ]); // Estado para almacenar las tareas con 2 tareas de prueba
+  const [nuevaTarea, setNuevaTarea] = useState({ texto: '', categoria: 'personal' }); // Estado para la nueva tarea
+  const [filtroCategoria, setFiltroCategoria] = useState('todas'); // Estado para el filtro de categoría
+  const [filtroEstado, setFiltroEstado] = useState('todas'); // Estado para el filtro de estado
+
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Texto</th>
+            <th>Categoría</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ListaTareas tareas={tareas} filtroCategoria={filtroCategoria} filtroEstado={filtroEstado} /*funcion undefined for now*/ />
+        </tbody>
+      </table>
+      <></>
     </>
   )
 }
