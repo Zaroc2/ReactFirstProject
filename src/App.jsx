@@ -2,7 +2,8 @@ import { useState } from 'react'
 import './App.css'
 
 
-function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTask, deleteTask, editTask}) {//Las tareas, los filtros y una funcion a aplicar? Los componentes solo pueden recibir un parametro, so lo metemos en un objeto
+//Componente para mostrar la lista de tareas
+function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTask, deleteTask, abrirModal}) {//Las tareas, los filtros y una funcion a aplicar? Los componentes solo pueden recibir un parametro, so lo metemos en un objeto
 
   //Primero filtramos todas las tareas
   let tareasFiltradas = [];
@@ -22,7 +23,7 @@ function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTa
           <td>{tarea.categoria}</td>
           <td>{tarea.estado}</td>
           <td><button onClick={() => completeTask(tarea)}>✅</button></td>
-          <td><button onClick={() => editTask(tarea)}>✏️</button></td>
+          <td><button onClick={() => abrirModal(tarea)}>✏️</button></td>
           <td><button onClick={() => deleteTask(tarea)}>🗑️</button></td> 
           </tr>
       })}
@@ -31,7 +32,7 @@ function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTa
 
 }
 
-
+//Componente para agregar una nueva tarea
 function FormularioTarea({nuevaTarea, setNuevaTarea, agregarTarea}) {
 
   return(//Un formulario que cuando se hace submit llama a la funcion agregarTarea
@@ -69,6 +70,34 @@ function FormularioTarea({nuevaTarea, setNuevaTarea, agregarTarea}) {
 }
 
 
+//Componente para editar la tarea
+function ModalEditarTarea({tarea, actualizarYCerrarModal}) {
+
+  const [tareaEditada, setTareaEditada] = useState(tarea); // Estado para la tarea editada
+
+  return (
+    <div className="modalBackground">
+      <div className="modalBody">
+        <h2>Editar Tarea</h2>
+        <input type="text" value={tareaEditada.texto} onChange={(e) => setTareaEditada({...tareaEditada, texto: e.target.value})} />
+        <select value={tareaEditada.categoria} onChange={(e) => setTareaEditada({...tareaEditada, categoria: e.target.value})}>
+          <option value="personal">Personal</option>
+          <option value="trabajo">Trabajo</option>
+          <option value="estudio">Estudio</option>
+        </select>
+        <select value={tareaEditada.estado} onChange={(e) => setTareaEditada({...tareaEditada, estado: e.target.value})}>
+          <option value="pendiente">Pendiente</option>
+          <option value="completada">Completada</option>
+        </select>
+        <button onClick={() => actualizarYCerrarModal(tareaEditada)}>Actualizar</button>
+      </div>
+    </div>
+  )
+
+}
+
+
+
 function App() {
 
   const [tareas, setTareas] = useState([
@@ -78,6 +107,8 @@ function App() {
   const [nuevaTarea, setNuevaTarea] = useState({ texto: '', categoria: 'personal' }); // Estado para la nueva tarea
   const [filtroCategoria, setFiltroCategoria] = useState('todas'); // Estado para el filtro de categoría
   const [filtroEstado, setFiltroEstado] = useState('todas'); // Estado para el filtro de estado
+  const [tareaAEditar, setTareaAEditar] = useState(null); // Estado para la tarea que se está editando
+  const [modalAbierto, setModalAbierto] = useState(false); // Estado para controlar la apertura del modal
 
   function completeTask(tarea){
     setTareas(tareas.map(t => t.id === tarea.id ? {...t, estado: t.estado === 'pendiente' ? 'completada' : 'pendiente'} : t));
@@ -91,18 +122,47 @@ function App() {
     console.log("editing " + tarea.texto);
   }
 
-  return (
+  function abrirModal(tarea){
+    setTareaAEditar(tarea);
+    setModalAbierto(true);
+  }
+
+  function cerrarModal(){
+    setTareaAEditar(null);
+    setModalAbierto(false);
+  }
+
+  //Esto es una funcion callback, se la paso a ModalEditarTarea para que la llame al finalizar y actualice el valor de la TareaAEditar y luego cierre el modal
+  function actualizarTarea(tareaActualizada){
+    setTareas(tareas.map(t => t.id === tareaActualizada.id ? tareaActualizada : t));
+    cerrarModal();
+  }
+
+  return (//El colSpan="3" es para que el mensaje de "No hay tareas :)" ocupe 3 columnas de la tabla
     <>
       <table id="tabla-tareas">
         <thead>
           <tr>
-            <th>Texto</th>
-            <th>Categoría</th>
-            <th>Estado</th>
+            {tareas.length !== 0 && (
+              <>
+                <th>Texto</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody>
-          <ListaTareas tareas={tareas} filtroCategoria={filtroCategoria} filtroEstado={filtroEstado} completeTask={completeTask} deleteTask={deleteTask} editTask={editTask} />
+          {tareas.length === 0 ? <tr><td colSpan="3">No hay tareas :)</td></tr> : (
+            <ListaTareas 
+              tareas={tareas} 
+              filtroCategoria={filtroCategoria} 
+              filtroEstado={filtroEstado} 
+              completeTask={completeTask} 
+              deleteTask={deleteTask} 
+              abrirModal={abrirModal}
+            />
+          )}
         </tbody>
       </table>
 
@@ -115,6 +175,10 @@ function App() {
         setTareas([...tareas, { id: Date.now(), texto: nuevaTarea.texto, categoria: nuevaTarea.categoria, estado: 'pendiente' }]);
         setNuevaTarea({ texto: '', categoria: 'personal' });
       } } />
+
+      {modalAbierto && (
+        <ModalEditarTarea tarea={tareaAEditar} actualizarYCerrarModal={actualizarTarea} />
+      )}
     </>
 
   )
