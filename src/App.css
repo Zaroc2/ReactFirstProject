@@ -1,3 +1,14 @@
+.filtros {
+    margin: 20px;
+    color: white;
+    display: flex;
+}
+
+.filtros label {
+    margin-right: 10px;
+}   
+
+
 #tabla-tareas td {
 
     border: 1px solid white;
@@ -67,6 +78,12 @@ form {
 
 }
 
+.modalBody h2 {
+
+    margin: 0 0 20px 0;
+
+}
+
 .modalBody {
 
     background-color: #16171d;
@@ -74,6 +91,7 @@ form {
     border-radius: 5px;
     justify-content: end;
     align-items: first baseline;
+    width: 400px;
 
 }
 
@@ -82,5 +100,20 @@ form {
     width: 100%;
     padding: 5px;
     margin-bottom: 20px;
+    margin-left: 30px;
 
+}
+
+.formRow {
+
+    display: flex;    
+
+}
+
+.modalBody button {
+    border: 5px solid rgb(94, 33, 112);
+    background: rgb(119, 41, 143);
+    padding: 5px 5px 5px 5px;
+    margin: 20px 10px 10px 10px;
+    cursor: pointer;
 }
