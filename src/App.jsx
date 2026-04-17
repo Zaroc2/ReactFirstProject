@@ -3,7 +3,7 @@ import './App.css'
 
 
 //Componente para mostrar la lista de tareas
-function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTask, deleteTask, abrirModal}) {//Las tareas, los filtros y una funcion a aplicar? Los componentes solo pueden recibir un parametro, so lo metemos en un objeto
+function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTask, deleteTask, abrirModal, subirTareaIndice, bajarTareaIndice}) {//Las tareas, los filtros y una funcion a aplicar? Los componentes solo pueden recibir un parametro, so lo metemos en un objeto
 
   //Primero filtramos todas las tareas
   let tareasFiltradas = [];
@@ -22,7 +22,15 @@ function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTa
     <>
       {tareasFiltradas.map((tarea) => {
         return <tr key={tarea.id}>
-          <td>{tarea.texto}</td>
+            <td>
+              <div className='textoTarea'>
+                <div className='botonesTarea'>
+                <button onClick={() => subirTareaIndice(tarea.id)}>⬆️</button>
+                <button onClick={() => bajarTareaIndice(tarea.id)}>⬇️</button>
+                </div>
+              <div id='texto'>{tarea.texto}</div>
+              </div>
+            </td>
           <td>{tarea.categoria}</td>
           <td>{tarea.estado}</td>
           <td><button onClick={() => completeTask(tarea)}>✅</button></td>
@@ -163,6 +171,30 @@ function App() {
     cerrarModal();
   }
 
+  function subirTareaIndice(ID){
+    console.log("Subiendo tarea con ID: " + ID);
+    //findIndex encuentra el indice en el arreglo de tareas de la tarea que coincida con el ID 
+    let tareaID = tareas.findIndex(t => t.id === ID);
+
+    if(tareaID === 0) return; // Si es la primera
+
+    const tareasAux = [...tareas]; // Hacemos una copia del arreglo de tareas
+    [tareasAux[tareaID - 1], tareasAux[tareaID]] = [tareasAux[tareaID], tareasAux[tareaID - 1]]; // Intercambiamos la tarea con la anterior
+    setTareas(tareasAux); // Actualizamos el estado de tareas con el nuevo orden
+
+  }
+
+  function bajarTareaIndice(ID){
+    let tareaID = tareas.findIndex(t => t.id === ID);
+
+    if(tareaID === tareas.length-1) return; // Si es la última
+
+    const tareasAux = [...tareas]; // Hacemos una copia del arreglo de tareas
+    [tareasAux[tareaID + 1], tareasAux[tareaID]] = [tareasAux[tareaID], tareasAux[tareaID + 1]]; // Intercambiamos la tarea con la siguiente
+    setTareas(tareasAux); // Actualizamos el estado de tareas con el nuevo orden
+
+  }
+
   return (
     <>
     <div className="filtros">
@@ -202,6 +234,8 @@ function App() {
               completeTask={completeTask} 
               deleteTask={deleteTask} 
               abrirModal={abrirModal}
+              subirTareaIndice={subirTareaIndice}
+              bajarTareaIndice={bajarTareaIndice}
             />
         </tbody>
       </table>
