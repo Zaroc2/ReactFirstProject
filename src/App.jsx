@@ -1,11 +1,8 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
 
-function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion}) {//Las tareas, los filtros y una funcion a aplicar? Los componentes solo pueden recibir un parametro, so lo metemos en un objeto
+function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion ,completeTask, deleteTask, editTask}) {//Las tareas, los filtros y una funcion a aplicar? Los componentes solo pueden recibir un parametro, so lo metemos en un objeto
 
   //Primero filtramos todas las tareas
   let tareasFiltradas = [];
@@ -20,12 +17,20 @@ function ListaTareas({tareas, filtroCategoria, filtroEstado, funcion}) {//Las ta
   return(
     <>
       {tareasFiltradas.map((tarea) => {
-        return <tr key={tarea.id}><td>{tarea.texto}</td><td>{tarea.categoria}</td><td>{tarea.estado}</td><td><button onClick={() => (console.log(tarea.texto))}>Editar</button></td></tr>
+        return <tr key={tarea.id}>
+          <td>{tarea.texto}</td>
+          <td>{tarea.categoria}</td>
+          <td>{tarea.estado}</td>
+          <td><button onClick={() => completeTask(tarea)}>✅</button></td>
+          <td><button onClick={() => editTask(tarea)}>✏️</button></td>
+          <td><button onClick={() => deleteTask(tarea)}>🗑️</button></td> 
+          </tr>
       })}
     </>
   )
 
 }
+
 
 function FormularioTarea({nuevaTarea, setNuevaTarea, agregarTarea}) {
 
@@ -33,9 +38,7 @@ function FormularioTarea({nuevaTarea, setNuevaTarea, agregarTarea}) {
 
     <form onSubmit={agregarTarea}>
 
-
-
-    <table>
+    <table id="formulario-tarea">
       <thead>
           <tr>
             <th>Texto</th>
@@ -58,7 +61,7 @@ function FormularioTarea({nuevaTarea, setNuevaTarea, agregarTarea}) {
         </tr>
       </tbody>
     </table>
-    <button type="submit">Agregar Tarea</button>
+    <button id="agregar-tarea" type="submit">Agregar Tarea</button>
     </form>
 
   )// Para cada input, hay un onChange, un estado que se guarda en el objeto e por cada evento (teclado por ejemplo) y que actualizar el valor de nuevaTarea
@@ -67,7 +70,6 @@ function FormularioTarea({nuevaTarea, setNuevaTarea, agregarTarea}) {
 
 
 function App() {
-  const [count, setCount] = useState(0)
 
   const [tareas, setTareas] = useState([
     { id: 1, texto: 'Tarea de prueba 1', categoria: 'personal', estado: 'pendiente' },
@@ -77,9 +79,21 @@ function App() {
   const [filtroCategoria, setFiltroCategoria] = useState('todas'); // Estado para el filtro de categoría
   const [filtroEstado, setFiltroEstado] = useState('todas'); // Estado para el filtro de estado
 
+  function completeTask(tarea){
+    setTareas(tareas.map(t => t.id === tarea.id ? {...t, estado: t.estado === 'pendiente' ? 'completada' : 'pendiente'} : t));
+  }
+
+  function deleteTask(tarea){
+    setTareas(tareas.filter(t => t.id !== tarea.id));
+  }
+
+  function editTask(tarea){
+    console.log("editing " + tarea.texto);
+  }
+
   return (
     <>
-      <table>
+      <table id="tabla-tareas">
         <thead>
           <tr>
             <th>Texto</th>
@@ -88,12 +102,16 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          <ListaTareas tareas={tareas} filtroCategoria={filtroCategoria} filtroEstado={filtroEstado} /*funcion undefined for now*/ />
+          <ListaTareas tareas={tareas} filtroCategoria={filtroCategoria} filtroEstado={filtroEstado} completeTask={completeTask} deleteTask={deleteTask} editTask={editTask} />
         </tbody>
       </table>
 
       <FormularioTarea nuevaTarea={nuevaTarea} setNuevaTarea={setNuevaTarea} agregarTarea={(e) => { //Esta es la funcion llamada cuando se hace submit a Agregar Tarea
         e.preventDefault(); // Evitar que el formulario se envíe en el evento actual recargue la página
+        if(nuevaTarea.texto.trim() === '') {
+          alert('El texto de la tarea no puede estar vacío');
+          return;
+        }
         setTareas([...tareas, { id: Date.now(), texto: nuevaTarea.texto, categoria: nuevaTarea.categoria, estado: 'pendiente' }]);
         setNuevaTarea({ texto: '', categoria: 'personal' });
       } } />
